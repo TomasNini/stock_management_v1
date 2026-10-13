@@ -1,0 +1,143 @@
+.analytics {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+  color: var(--color-text);
+
+  .analytics-header {
+    margin-bottom: 1rem;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+    color: var(--color-button);
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+
+    .kpi {
+      padding: 0.85rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+
+      .kpi-label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-size: 0.8rem;
+        color: #6b7280;
+      }
+
+      strong {
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  section {
+    margin-bottom: 1.25rem;
+
+    h3 {
+      margin: 0 0 0.65rem;
+      font-size: 1rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.65rem;
+
+      h3 {
+        margin: 0;
+      }
+
+      .header-filters {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        select {
+          height: 2.15rem;
+          padding: 0 0.6rem;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          background: #fff;
+          color: var(--color-text);
+        }
+
+        .period-actions {
+          display: flex;
+          gap: 0.5rem;
+
+          button {
+            height: 2.15rem;
+            padding: 0 0.9rem;
+            background: #f3f4f6;
+            color: var(--color-text);
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+
+            &.active {
+              background: var(--color-button);
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
+
+    .empty {
+      margin: 0;
+      color: #6b7280;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th,
+      td {
+        text-align: left;
+        padding: 0.55rem 0.65rem;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+      }
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1rem;
+
+      button {
+        height: 2.15rem;
+        padding: 0 0.9rem;
+        background: var(--color-button);
+        color: #fff;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}

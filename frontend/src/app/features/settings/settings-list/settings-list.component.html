@@ -1,0 +1,55 @@
+<div class="settings-list">
+  <div class="settings-header">
+    <h2>Settings</h2>
+  </div>
+
+  <form novalidate (ngSubmit)="onSave()">
+    <div class="field">
+      <label for="setting-app-name">App name</label>
+      <input id="setting-app-name" name="appName" type="text" [(ngModel)]="data.appName" [disabled]="saving()" required />
+    </div>
+    <div class="field">
+      <label for="setting-currency">Currency</label>
+      <input id="setting-currency" name="currency" type="text" [(ngModel)]="data.currency" [disabled]="saving()" required />
+    </div>
+    <div class="field color-field">
+      <label for="setting-menu-background">Menu background</label>
+      <input id="setting-menu-background" name="menuBackground" type="color" [(ngModel)]="data.menuBackground" [disabled]="saving()" />
+    </div>
+    <div class="field color-field">
+      <label for="setting-menu-text">Menu text</label>
+      <input id="setting-menu-text" name="menuText" type="color" [(ngModel)]="data.menuText" [disabled]="saving()" />
+    </div>
+    <div class="field color-field">
+      <label for="setting-menu-active">Menu active</label>
+      <input id="setting-menu-active" name="menuActive" type="color" [(ngModel)]="data.menuActive" [disabled]="saving()" />
+    </div>
+    <div class="field color-field">
+      <label for="setting-button">Buttons</label>
+      <input id="setting-button" name="button" type="color" [(ngModel)]="data.button" [disabled]="saving()" />
+    </div>
+    <div class="field color-field">
+      <label for="setting-text">Text</label>
+      <input id="setting-text" name="text" type="color" [(ngModel)]="data.text" [disabled]="saving()" />
+    </div>
+    <div class="field color-field">
+      <label for="setting-page-background">Page background</label>
+      <input
+        id="setting-page-background"
+        name="pageBackground"
+        type="color"
+        [(ngModel)]="data.pageBackground"
+        [disabled]="saving()"
+      />
+    </div>
+    <div class="actions">
+      <button type="button" class="secondary" [disabled]="saving()" (click)="resetColors()">Reset colors</button>
+      <button type="submit" [disabled]="saving()">
+        @if (saving()) {
+          <app-spinner />
+        }
+        Save
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,22 @@
+<div class="shell">
+  <aside class="shell-nav">
+    <h1 class="shell-title">{{ serviceHub.settings.appName() }}</h1>
+    <nav class="shell-menu">
+      @for (item of serviceHub.menu.items(); track item.id) {
+        @if (item.visible()) {
+          <a
+            class="shell-menu-item"
+            [class.shell-menu-item-end]="item.pinBottom"
+            [routerLink]="item.disabled() ? null : item.path"
+            routerLinkActive="shell-menu-item-active"
+          >
+            {{ item.label }}
+          </a>
+        }
+      }
+    </nav>
+  </aside>
+  <main class="shell-main">
+    <router-outlet />
+  </main>
+</div>

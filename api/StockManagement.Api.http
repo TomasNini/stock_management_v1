@@ -1,0 +1,17 @@
+@StockManagement.Api_HostAddress = http://localhost:5011
+
+GET {{StockManagement.Api_HostAddress}}/api/products/get-products
+Accept: application/json
+
+###
+
+POST {{StockManagement.Api_HostAddress}}/api/products/create-product
+Content-Type: application/json
+
+{
+  "name": "Widget",
+  "sku": "WDG-001",
+  "description": null,
+  "quantity": 10,
+  "unitPrice": 4.50
+}

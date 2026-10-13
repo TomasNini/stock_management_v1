@@ -1,0 +1,110 @@
+<div class="analytics">
+  <div class="analytics-header">
+    <h2>Analytics</h2>
+  </div>
+
+  @if (!summary.value() && !movements.value()) {
+    <div class="loading">
+      <app-spinner />
+    </div>
+  } @else {
+    @if (summary.value(); as stats) {
+      <div class="kpi-grid">
+        <div class="kpi">
+          <span class="kpi-label">Stock value</span>
+          <strong>{{ stats.totalStockValue }} {{ serviceHub.settings.currency() }}</strong>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Units in stock</span>
+          <strong>{{ stats.totalUnits }}</strong>
+        </div>
+      </div>
+
+      <section>
+        <h3>Low stock</h3>
+        @if (stats.lowStock.length === 0) {
+          <p class="empty">No low-stock products.</p>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Sku</th>
+                <th>Quantity</th>
+                <th>Min</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (product of stats.lowStock; track product.id) {
+                <tr>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.sku }}</td>
+                  <td>{{ product.quantity }}</td>
+                  <td>{{ product.minQuantity }}</td>
+                  <td>{{ stockStatus(product) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
+    }
+
+    <section>
+      <div class="section-header">
+        <h3>Recent movements</h3>
+        <div class="header-filters">
+          <select [value]="productId() ?? ''" (change)="setProductId($event)">
+            <option value="">All products</option>
+            @for (product of products.value() ?? []; track product.id) {
+              <option [value]="product.id">{{ product.name }}</option>
+            }
+          </select>
+          <div class="period-actions">
+            <button type="button" [class.active]="period() === '7'" (click)="setPeriod('7')">7 days</button>
+            <button type="button" [class.active]="period() === '30'" (click)="setPeriod('30')">30 days</button>
+            <button type="button" [class.active]="period() === 'all'" (click)="setPeriod('all')">All</button>
+          </div>
+        </div>
+      </div>
+      @if (movements.value(); as data) {
+        @if (data.recent.length === 0) {
+          <p class="empty">No movements in this period.</p>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Product</th>
+                <th>Delta</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (movement of pagedRecent(); track $index) {
+                <tr>
+                  <td>{{ movement.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ movement.productName }}</td>
+                  <td>{{ movement.delta > 0 ? '+' : '' }}{{ movement.delta }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <div class="pager">
+            <button type="button" [disabled]="movementsPage() <= 1" (click)="goToMovementsPage(movementsPage() - 1)">
+              Previous
+            </button>
+            <span>Page {{ movementsPage() }} of {{ movementsTotalPages() }}</span>
+            <button
+              type="button"
+              [disabled]="movementsPage() >= movementsTotalPages()"
+              (click)="goToMovementsPage(movementsPage() + 1)"
+            >
+              Next
+            </button>
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

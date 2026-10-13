@@ -1,0 +1,226 @@
+<div class="product-list">
+  <div class="product-list-header">
+    <h2>Products</h2>
+    <div class="header-actions">
+      <button type="button" (click)="exportProducts()">Export</button>
+      <button type="button" (click)="createDialog.openDialog()">Add product</button>
+    </div>
+  </div>
+
+  <table class="products-table">
+    <thead>
+        <tr>
+          <th>
+            <button type="button" (click)="sortBy('id')">
+              Id
+              @if (sort().column === 'id') {
+                <span>{{ sort().direction === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </button>
+          </th>
+          <th class="col-name">
+            <div class="column-heading">
+              <button type="button" (click)="sortBy('name')">
+                Name
+                @if (sort().column === 'name') {
+                  <span>{{ sort().direction === 'asc' ? '▲' : '▼' }}</span>
+                }
+              </button>
+              <button
+                type="button"
+                class="filter"
+                [class.active]="nameFilterOpen() || nameFilter()"
+                aria-label="Filter by name"
+                (click)="toggleNameFilter()"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="6.5" cy="6.5" r="4" fill="none" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M9.5 9.5 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+              </button>
+              @if (nameFilterOpen()) {
+                <input
+                  type="text"
+                  placeholder="Filter name"
+                  [value]="nameFilter()"
+                  (input)="onNameFilterInput($event)"
+                />
+              }
+            </div>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('sku')">
+              Sku
+              @if (sort().column === 'sku') {
+                <span>{{ sort().direction === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </button>
+          </th>
+          <th class="col-quantity">
+            <div class="column-heading">
+              <button type="button" (click)="sortBy('quantity')">
+                Quantity
+                @if (sort().column === 'quantity') {
+                  <span>{{ sort().direction === 'asc' ? '▲' : '▼' }}</span>
+                }
+              </button>
+              <button
+                type="button"
+                class="filter"
+                [class.active]="stockFilterOpen() || minStock() || maxStock()"
+                aria-label="Filter by stock level"
+                (click)="toggleStockFilter()"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M2 3.5h12L10 8.5v4L6 14V8.5z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              @if (stockFilterOpen()) {
+                <div class="range-inputs">
+                  <input type="number" min="0" step="1" placeholder="Min" [value]="minStock()" (input)="onMinStockInput($event)" />
+                  <input type="number" min="0" step="1" placeholder="Max" [value]="maxStock()" (input)="onMaxStockInput($event)" />
+                </div>
+              }
+            </div>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('unitPrice')">
+              Unit price
+              @if (sort().column === 'unitPrice') {
+                <span>{{ sort().direction === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </button>
+          </th>
+          <th>
+            <button type="button" (click)="sortBy('updatedAt')">
+              Last updated
+              @if (sort().column === 'updatedAt') {
+                <span>{{ sort().direction === 'asc' ? '▲' : '▼' }}</span>
+              }
+            </button>
+          </th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+    <tbody>
+      @if (products.isLoading() && !products.value()) {
+        <tr>
+          <td colspan="7">
+            <div class="loading">
+              <app-spinner />
+            </div>
+          </td>
+        </tr>
+      } @else {
+        @for (product of sortedProducts(); track product.id) {
+          <tr (mouseleave)="leaveRow(product.id)">
+            <td>{{ product.id }}</td>
+            <td class="col-name" [title]="product.name">{{ product.name }}</td>
+            <td>{{ product.sku }}</td>
+            <td class="numeric-cell" (mouseenter)="beginInlineEdit(product)">
+              <span class="cell-value" [class.hidden]="isEditing(product.id)">{{ product.quantity }}</span>
+              @if (isEditing(product.id)) {
+                <input
+                  class="cell-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  [value]="editing()?.quantity"
+                  [disabled]="saving()"
+                  (input)="onQuantityInput($event)"
+                />
+              }
+            </td>
+            <td>{{ product.unitPrice }} {{ serviceHub.settings.currency() }}</td>
+            <td>{{ product.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="col-actions">
+              <div class="row-actions">
+              @if (isEditing(product.id)) {
+                <button
+                  type="button"
+                  class="icon save"
+                  aria-label="Save"
+                  [disabled]="!canSaveInline()"
+                  (click)="saveInline()"
+                >
+                  @if (saving()) {
+                    <app-spinner />
+                  } @else {
+                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                      <path
+                        d="M3.5 8.5 6.5 11.5 12.5 4.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  }
+                </button>
+                <button
+                  type="button"
+                  class="icon"
+                  aria-label="Cancel"
+                  [disabled]="saving()"
+                  (click)="cancelInline()"
+                >
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <path
+                      d="M4 4l8 8M12 4l-8 8"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </button>
+              }
+              <button type="button" class="icon" aria-label="Edit" (click)="editDialog.openDialog(product.id)">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M11.7 1.3a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 1 0 1.4L6 13H3v-3z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <button type="button" class="icon danger" aria-label="Delete" (click)="openDeleteConfirm(product)">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M3 4h10M6 4V3h4v1m-7 0 1 9h6l1-9"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7">{{
+              nameFilter() || minStock() || maxStock() ? 'No products match these filters.' : 'No products yet.'
+            }}</td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+<app-product-create-dialog #createDialog (saved)="reloadProducts()" />
+<app-product-edit-dialog #editDialog (saved)="reloadProducts()" />
+
+<app-confirmation-dialog #confirmDeleteDialog [busy]="deleting()" (confirmed)="confirmDelete()" />

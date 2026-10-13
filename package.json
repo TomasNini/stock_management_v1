@@ -1,0 +1,8 @@
+{
+  "name": "stock-management",
+  "private": true,
+  "scripts": {
+    "frontend": "yarn --cwd frontend start",
+    "api": "dotnet run --project api/StockManagement.Api.csproj"
+  }
+}

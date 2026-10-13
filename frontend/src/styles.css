@@ -1,0 +1,26 @@
+:root {
+  --color-menu-background: #1f2937;
+  --color-menu-text: #f9fafb;
+  --color-menu-active: #2563eb;
+  --color-button: #2563eb;
+  --color-text: #111827;
+  --color-page-background: #f3f4f6;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  font-family: Segoe UI, system-ui, sans-serif;
+  color: var(--color-text);
+}
+
+button,
+input {
+  font: inherit;
+}

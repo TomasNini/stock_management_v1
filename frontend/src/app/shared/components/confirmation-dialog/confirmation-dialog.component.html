@@ -1,0 +1,13 @@
+<dialog #dialogRef (keydown.escape)="onKeydownEscape($event)">
+  <h2>{{ title() }}</h2>
+  <p>{{ message() }}</p>
+  <div class="actions">
+    <button type="button" (click)="closeDialog()" [disabled]="busy()">Cancel</button>
+    <button type="button" class="danger" (click)="onConfirm()" [disabled]="busy()">
+      @if (busy()) {
+        <app-spinner />
+      }
+      {{ confirmLabel() }}
+    </button>
+  </div>
+</dialog>
