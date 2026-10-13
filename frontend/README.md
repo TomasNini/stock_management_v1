@@ -15,8 +15,6 @@ See the [repository README](../README.md) for API setup.
 
 ## Migrations
 
-Code-first EF Core (SQLite). Run from `../api`.
-
 Install the tool once:
 
 ```bash

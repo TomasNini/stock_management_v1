@@ -39,13 +39,15 @@ export class ProductAnalyticsListComponent {
   })
 
   public movements = resource({
-    params: () => `${this.period()}:${this.productId() ?? 'all'}`,
+    params: () => ({
+      period: this.period(),
+      productId: this.productId(),
+    }),
     loader: async ({ params }) => {
-      const [period, productKey] = params.split(':')
       try {
         return await this.serviceHub.http.get<GetMovementAnalyticsResponseDTO>('analytics/get-movement-analytics', {
-          period,
-          productId: productKey === 'all' ? undefined : Number(productKey),
+          period: params.period,
+          productId: params.productId,
         })
       } catch {
         return null

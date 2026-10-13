@@ -38,6 +38,7 @@ export class ProductListComponent {
   public minStock = signal('')
   public maxStock = signal('')
   public productToDelete = signal<SearchProductsResponseDTO | null>(null)
+  
   public products = resource({
     params: () => ({
       name: this.nameQuery(),
@@ -46,7 +47,22 @@ export class ProductListComponent {
     }),
     loader: async ({ params }) => {
       try {
-        return await this.loadProducts(params.name, params.min, params.max)
+        const term = params.name.trim()
+        if (params.min != null || params.max != null) {
+          const items = await this.getStockLevel(params.min, params.max)
+          if (!term) {
+            return items
+          }
+
+          const match = term.toLowerCase()
+          return items.filter((product) => product.name.toLowerCase().includes(match))
+        }
+
+        if (!term) {
+          return await this.getProducts()
+        }
+
+        return await this.searchProducts(term)
       } catch {
         return [] as SearchProductsResponseDTO[]
       }
@@ -56,8 +72,8 @@ export class ProductListComponent {
   public sortedProducts = computed(() => {
     const items = this.products.value() ?? []
     const { column, direction } = this.sort()
-    const factor = direction === 'asc' ? 1 : -1
-    return [...items].sort((left, right) => compareProducts(left, right, column) * factor)
+    const directionFactor = direction === 'asc' ? 1 : -1
+    return [...items].sort((left, right) => compareProducts(left, right, column) * directionFactor)
   })
 
   private confirmDeleteDialog = viewChild.required(ConfirmationDialogComponent)
@@ -164,30 +180,19 @@ export class ProductListComponent {
     this.stockFilterTimer = null
   }
 
-  private async loadProducts(
-    name: string,
-    min: number | null,
-    max: number | null,
-  ): Promise<SearchProductsResponseDTO[]> {
-    const term = name.trim()
-    if (min != null || max != null) {
-      const items = await this.serviceHub.http.get<SearchProductsResponseDTO[]>('products/stock-level', {
-        min: min ?? 0,
-        max: max ?? undefined,
-      })
-      if (!term) {
-        return items
-      }
+  private getProducts(): Promise<SearchProductsResponseDTO[]> {
+    return this.serviceHub.http.get<SearchProductsResponseDTO[]>('products')
+  }
 
-      const match = term.toLowerCase()
-      return items.filter((product) => product.name.toLowerCase().includes(match))
-    }
+  private searchProducts(name: string): Promise<SearchProductsResponseDTO[]> {
+    return this.serviceHub.http.get<SearchProductsResponseDTO[]>('products/search', { name })
+  }
 
-    if (!term) {
-      return await this.serviceHub.http.get<SearchProductsResponseDTO[]>('products')
-    }
-
-    return await this.serviceHub.http.get<SearchProductsResponseDTO[]>('products/search', { name: term })
+  private getStockLevel(min: number | null, max: number | null): Promise<SearchProductsResponseDTO[]> {
+    return this.serviceHub.http.get<SearchProductsResponseDTO[]>('products/stock-level', {
+      min: min ?? 0,
+      max: max ?? undefined,
+    })
   }
 
   public sortBy(column: SortColumn): void {

@@ -99,6 +99,24 @@
       }
     }
 
+    &.low-stock {
+      .low-stock-list {
+        max-height: 18rem;
+        overflow: auto;
+
+        .data-table {
+          border-collapse: separate;
+          border-spacing: 0;
+        }
+
+        th {
+          position: sticky;
+          top: 0;
+          background: #fff;
+        }
+      }
+    }
+
     .empty {
       margin: 0;
       color: #6b7280;
