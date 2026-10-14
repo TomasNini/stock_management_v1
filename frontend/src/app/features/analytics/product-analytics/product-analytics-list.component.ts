@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common'
-import { Component, computed, inject, resource, signal } from '@angular/core'
+import { Component, inject, resource, signal } from '@angular/core'
 import { SpinnerComponent } from '@shared/components/spinner/spinner.component'
 import { ServiceHub } from '@shared/services/service-hub.service'
 
@@ -42,23 +42,20 @@ export class ProductAnalyticsListComponent {
     params: () => ({
       period: this.period(),
       productId: this.productId(),
+      page: this.movementsPage(),
     }),
     loader: async ({ params }) => {
       try {
         return await this.serviceHub.http.get<GetMovementAnalyticsResponseDTO>('analytics/get-movement-analytics', {
           period: params.period,
           productId: params.productId,
+          page: params.page,
+          pageSize: this.movementsPageSize,
         })
       } catch {
         return null
       }
     },
-  })
-
-  public pagedRecent = computed(() => {
-    const items = this.movements.value()?.recent ?? []
-    const start = (this.movementsPage() - 1) * this.movementsPageSize
-    return items.slice(start, start + this.movementsPageSize)
   })
 
   public setPeriod(period: Period): void {
@@ -73,7 +70,7 @@ export class ProductAnalyticsListComponent {
   }
 
   public movementsTotalPages(): number {
-    const total = this.movements.value()?.recent.length ?? 0
+    const total = this.movements.value()?.total ?? 0
     return Math.max(1, Math.ceil(total / this.movementsPageSize))
   }
 
@@ -113,6 +110,7 @@ interface LowStockProductResponseDTO {
 
 interface GetMovementAnalyticsResponseDTO {
   recent: RecentMovementResponseDTO[]
+  total: number
 }
 
 interface RecentMovementResponseDTO {

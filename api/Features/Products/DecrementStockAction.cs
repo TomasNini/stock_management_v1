@@ -27,7 +27,7 @@ public class DecrementStockAction(MainDbContext dbContext) : ControllerBase {
         }
 
         entity.Quantity -= quantity;
-        entity.UpdatedAt = DateTimeOffset.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
         StockMovementRecorder.Add(dbContext, entity.Id, -quantity);
         await dbContext.SaveChangesAsync();
 

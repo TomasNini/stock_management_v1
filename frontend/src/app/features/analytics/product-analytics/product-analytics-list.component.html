@@ -16,44 +16,6 @@
     </div>
   }
 
-  <section class="low-stock">
-    <h3>Low stock</h3>
-    @if (summary.isLoading() && !summary.value()) {
-      <div class="loading">
-        <app-spinner />
-      </div>
-    } @else if (summary.value(); as stats) {
-      @if (stats.lowStock.length === 0) {
-        <p class="empty">No low-stock products.</p>
-      } @else {
-        <div class="low-stock-list">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Sku</th>
-                <th>Quantity</th>
-                <th>Min</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (product of stats.lowStock; track product.id) {
-                <tr>
-                  <td>{{ product.name }}</td>
-                  <td>{{ product.sku }}</td>
-                  <td>{{ product.quantity }}</td>
-                  <td>{{ product.minQuantity }}</td>
-                  <td>{{ stockStatus(product) }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    }
-  </section>
-
   <section>
     <div class="section-header">
       <h3>Recent movements</h3>
@@ -88,7 +50,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (movement of pagedRecent(); track $index) {
+            @for (movement of data.recent; track $index) {
               <tr>
                 <td>{{ movement.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ movement.productName }}</td>
@@ -109,6 +71,44 @@
           >
             Next
           </button>
+        </div>
+      }
+    }
+  </section>
+
+  <section class="low-stock">
+    <h3>Low stock</h3>
+    @if (summary.isLoading() && !summary.value()) {
+      <div class="loading">
+        <app-spinner />
+      </div>
+    } @else if (summary.value(); as stats) {
+      @if (stats.lowStock.length === 0) {
+        <p class="empty">No low-stock products.</p>
+      } @else {
+        <div class="low-stock-list">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Sku</th>
+                <th>Quantity</th>
+                <th>Min</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (product of stats.lowStock; track product.id) {
+                <tr>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.sku }}</td>
+                  <td>{{ product.quantity }}</td>
+                  <td>{{ product.minQuantity }}</td>
+                  <td>{{ stockStatus(product) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
         </div>
       }
     }

@@ -7,7 +7,7 @@ namespace StockManagement.Api.Features.Analytics;
 /// <summary>
 /// GET analytics/get-summary
 /// Snapshot KPIs from current product stock: total value (qty * unitPrice), total units,
-/// and the low-stock list (quantity 0, or quantity at/below MinQuantity when MinQuantity &gt; 0).
+/// and the low-stock list (quantity 0, or quantity at/below MinQuantity when MinQuantity > 0).
 /// Does not use the movement ledger. Aggregates and the low-stock filter run in SQL.
 /// </summary>
 [ApiController]

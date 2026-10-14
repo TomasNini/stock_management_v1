@@ -14,7 +14,7 @@ namespace StockManagement.Api.Features.Products.ProductManager;
 public class CreateProductAction(MainDbContext dbContext) : ControllerBase {
     [HttpPost]
     public async Task<IActionResult> Handle([FromBody] CreateProductRequestDTO request) {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var entity = new Product {
             Name = request.Name.Trim(),
             Sku = request.Sku.Trim(),
@@ -70,6 +70,6 @@ public class CreateProductAction(MainDbContext dbContext) : ControllerBase {
         int Quantity,
         int MinQuantity,
         decimal UnitPrice,
-        DateTimeOffset CreatedAt,
-        DateTimeOffset UpdatedAt);
+        DateTime CreatedAt,
+        DateTime UpdatedAt);
 }

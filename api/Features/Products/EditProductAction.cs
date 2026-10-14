@@ -27,7 +27,7 @@ public class EditProductAction(MainDbContext dbContext) : ControllerBase {
         entity.Quantity = request.Quantity;
         entity.MinQuantity = request.MinQuantity;
         entity.UnitPrice = request.UnitPrice;
-        entity.UpdatedAt = DateTimeOffset.UtcNow;
+        entity.UpdatedAt = DateTime.UtcNow;
         StockMovementRecorder.Add(dbContext, entity.Id, quantityDelta);
 
         await dbContext.SaveChangesAsync();

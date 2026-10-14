@@ -7,7 +7,7 @@ namespace StockManagement.Api.Infrastructure.Data;
 /// (+ in, − out), not the new total. Zero deltas are skipped.
 /// </summary>
 public static class StockMovementRecorder {
-    public static void Add(MainDbContext dbContext, int productId, int delta, DateTimeOffset? createdAt = null) {
+    public static void Add(MainDbContext dbContext, int productId, int delta, DateTime? createdAt = null) {
         if (delta == 0) {
             return;
         }
@@ -15,7 +15,7 @@ public static class StockMovementRecorder {
         dbContext.StockMovements.Add(new StockMovement {
             ProductId = productId,
             Delta = delta,
-            CreatedAt = createdAt ?? DateTimeOffset.UtcNow,
+            CreatedAt = createdAt ?? DateTime.UtcNow,
         });
     }
 }

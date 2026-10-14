@@ -39,6 +39,6 @@ public class GetProductsAction(MainDbContext dbContext) : ControllerBase {
         int Quantity,
         int MinQuantity,
         decimal UnitPrice,
-        DateTimeOffset CreatedAt,
-        DateTimeOffset UpdatedAt);
+        DateTime CreatedAt,
+        DateTime UpdatedAt);
 }

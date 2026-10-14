@@ -6,59 +6,70 @@ namespace StockManagement.Api.Features.Analytics;
 
 /// <summary>
 /// GET analytics/get-movement-analytics
-/// Recent stock movements for Analytics. Optional query: period=7|30|all (default 30)
-/// and productId to scope one product.
+/// One page of stock movements, newest first. Query: period=7|30|all (default 30),
+/// optional productId, page (default 1) and pageSize (default 10, max 100).
 /// </summary>
 [ApiController]
 [Route("analytics/get-movement-analytics")]
 public class GetMovementAnalyticsAction(MainDbContext dbContext) : ControllerBase {
     [HttpGet]
-    public async Task<IActionResult> Handle([FromQuery] string period = "30", [FromQuery] int? productId = null) {
-        var movementsQuery = dbContext.StockMovements.AsNoTracking();
-        if (productId is not null) {
-            movementsQuery = movementsQuery.Where(x => x.ProductId == productId);
+    public async Task<IActionResult> Handle(
+        [FromQuery] string period = "30",
+        [FromQuery] int? productId = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10) {
+        if (page < 1) {
+            return BadRequest("Page must be at least 1");
         }
 
-        var movements = await movementsQuery
-            .Select(x => new { ProductName = x.Product.Name, x.Delta, x.CreatedAt })
-            .ToListAsync();
+        if (pageSize < 1 || pageSize > 100) {
+            return BadRequest("Page size must be between 1 and 100");
+        }
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var from = ResolveFrom(period, today);
+        var query = dbContext.StockMovements.AsNoTracking();
+        if (productId is not null) {
+            query = query.Where(x => x.ProductId == productId);
+        }
 
-        // Newest first; the frontend slices this list for the pager.
-        var recent = movements
-            .Where(x => {
-                if (from is null) {
-                    return true;
-                }
+        var from = PeriodStart(period, today);
+        if (from is DateTime start) {
+            var until = StartOfUtcDay(today.AddDays(1));
+            query = query.Where(x => x.CreatedAt >= start && x.CreatedAt < until);
+        }
 
-                var day = DateOnly.FromDateTime(x.CreatedAt.UtcDateTime);
-                return day >= from && day <= today;
-            })
+        var total = await query.CountAsync();
+        var recent = await query
             .OrderByDescending(x => x.CreatedAt)
-            .Select(x => new RecentMovementResponseDTO(x.CreatedAt, x.ProductName, x.Delta))
-            .ToList();
+            .ThenByDescending(x => x.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new RecentMovementResponseDTO(x.CreatedAt, x.Product.Name, x.Delta))
+            .ToListAsync();
 
-        return Ok(new GetMovementAnalyticsResponseDTO(recent));
+        return Ok(new GetMovementAnalyticsResponseDTO(recent, total));
     }
 
     /// <summary>
-    /// Inclusive start date for 7 or 30 days. Null means the full ledger (period=all).
+    /// Inclusive UTC start for 7 or 30 days. Null means the full ledger (period=all).
     /// </summary>
-    private static DateOnly? ResolveFrom(string period, DateOnly today) {
+    private static DateTime? PeriodStart(string period, DateOnly today) {
         if (string.Equals(period, "7", StringComparison.OrdinalIgnoreCase)) {
-            return today.AddDays(-6);
+            return StartOfUtcDay(today.AddDays(-6));
         }
 
         if (string.Equals(period, "all", StringComparison.OrdinalIgnoreCase)) {
             return null;
         }
 
-        return today.AddDays(-29);
+        return StartOfUtcDay(today.AddDays(-29));
     }
 
-    public record GetMovementAnalyticsResponseDTO(IReadOnlyList<RecentMovementResponseDTO> Recent);
+    private static DateTime StartOfUtcDay(DateOnly day) {
+        return day.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+    }
 
-    public record RecentMovementResponseDTO(DateTimeOffset CreatedAt, string ProductName, int Delta);
+    public record GetMovementAnalyticsResponseDTO(IReadOnlyList<RecentMovementResponseDTO> Recent, int Total);
+
+    public record RecentMovementResponseDTO(DateTime CreatedAt, string ProductName, int Delta);
 }

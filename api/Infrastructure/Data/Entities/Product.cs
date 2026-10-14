@@ -8,6 +8,6 @@ public class Product {
     public int Quantity { get; set; }
     public int MinQuantity { get; set; }
     public decimal UnitPrice { get; set; }
-    public DateTimeOffset CreatedAt { get; set; }
-    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

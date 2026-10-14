@@ -51,7 +51,7 @@ public static class SeedData {
         var usedNames = new HashSet<string>(await dbContext.Products.Select(x => x.Name).ToListAsync(), StringComparer.OrdinalIgnoreCase);
         var usedSkus = new HashSet<string>(await dbContext.Products.Select(x => x.Sku).ToListAsync(), StringComparer.OrdinalIgnoreCase);
         var skuNumber = 1;
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var products = new List<Product>();
 
         foreach (var adjective in Adjectives) {
@@ -107,7 +107,7 @@ public static class SeedData {
             .Select(x => new { x.ProductId, x.Delta, x.CreatedAt })
             .ToListAsync();
 
-        var usedTimes = new HashSet<DateTimeOffset>(movements.Select(x => x.CreatedAt));
+        var usedTimes = new HashSet<DateTime>(movements.Select(x => x.CreatedAt));
         var runningQty = products.ToDictionary(x => x.Id, x => x.Quantity);
         var lastAt = products.ToDictionary(x => x.Id, x => x.CreatedAt);
         foreach (var movement in movements) {
@@ -121,7 +121,7 @@ public static class SeedData {
             .ToList();
 
         var added = 0;
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
 
         foreach (var product in productsWithoutLedger) {
             var opening = 6 + product.Id % 40;
@@ -174,12 +174,12 @@ public static class SeedData {
 
     private static void AddMovement(
         MainDbContext dbContext,
-        HashSet<DateTimeOffset> usedTimes,
+        HashSet<DateTime> usedTimes,
         Dictionary<int, int> runningQty,
-        Dictionary<int, DateTimeOffset> lastAt,
+        Dictionary<int, DateTime> lastAt,
         Product product,
         int delta,
-        DateTimeOffset createdAt) {
+        DateTime createdAt) {
         createdAt = UniqueTime(usedTimes, createdAt);
         StockMovementRecorder.Add(dbContext, product.Id, delta, createdAt);
         runningQty[product.Id] = runningQty.GetValueOrDefault(product.Id) + delta;
@@ -192,12 +192,11 @@ public static class SeedData {
 
     //#region Dates
 
-    private static DateTimeOffset DayAt(DateTimeOffset now, int daysAgo, int hour, int minuteSalt) {
-        var day = now.UtcDateTime.Date.AddDays(-daysAgo).AddHours(hour).AddMinutes(minuteSalt % 60);
-        return new DateTimeOffset(day, TimeSpan.Zero);
+    private static DateTime DayAt(DateTime now, int daysAgo, int hour, int minuteSalt) {
+        return now.Date.AddDays(-daysAgo).AddHours(hour).AddMinutes(minuteSalt % 60);
     }
 
-    private static DateTimeOffset UniqueTime(HashSet<DateTimeOffset> usedTimes, DateTimeOffset value) {
+    private static DateTime UniqueTime(HashSet<DateTime> usedTimes, DateTime value) {
         while (!usedTimes.Add(value)) {
             value = value.AddMinutes(1);
         }
