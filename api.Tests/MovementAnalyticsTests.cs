@@ -52,6 +52,22 @@ public class MovementAnalyticsTests : IClassFixture<ApiFactory>, IAsyncLifetime 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task GetMovementAnalytics_ReturnsUtcTimestamps() {
+        await CreateProduct("UTC Product");
+
+        var response = await _client.GetAsync("/api/analytics/get-movement-analytics?period=all");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        using var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        var createdAt = payload.RootElement
+            .GetProperty("recent")[0]
+            .GetProperty("createdAt")
+            .GetString();
+
+        Assert.EndsWith("Z", createdAt);
+    }
+
     private async Task CreateProduct(string name) {
         var response = await _client.PostAsJsonAsync("/api/products", new {
             name,
