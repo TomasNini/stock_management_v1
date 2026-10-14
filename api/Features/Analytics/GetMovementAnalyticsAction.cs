@@ -33,7 +33,9 @@ public class GetMovementAnalyticsAction(MainDbContext dbContext) : ControllerBas
         }
 
         var from = PeriodStart(period, today);
-        if (from is DateTime start) {
+        // Filter 7/30-day periods by complete UTC days. "all" returns null and skips this filter
+        if (from.HasValue) {
+            var start = from.Value;
             var until = StartOfUtcDay(today.AddDays(1));
             query = query.Where(x => x.CreatedAt >= start && x.CreatedAt < until);
         }

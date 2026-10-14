@@ -19,7 +19,7 @@ public class EditProductAction(MainDbContext dbContext) : ControllerBase {
             return NotFound();
         }
 
-        // Delta is the change only; 0 is ignored by StockMovementRecorder.
+        // Delta is the change in quantity. 0 is ignored by StockMovementRecorder
         var quantityDelta = request.Quantity - entity.Quantity;
         entity.Name = request.Name.Trim();
         entity.Sku = request.Sku.Trim();
